@@ -2,6 +2,9 @@ import pandas as pd
 import joblib
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
+import tkinter as tk
+from tkinter import ttk
+
 
 # Load the data
 data_path = "./data/Dataset.csv"
@@ -47,19 +50,39 @@ def get_movie_recommendations(movie_title, num_recommendations=10):
                           ['title'].values[0] for idx in recommended_movie_indices][1:]
     return recommended_movies
 
+# Function to handle movie selection from the combo box
 
-# Command-line interface for user input and recommendations
-while True:
-    user_input = input(
-        "Enter your movie name you watched or exit: ")
-    if user_input.lower() == 'exit':
-        break
 
-    recommendations = get_movie_recommendations(user_input)
+def on_movie_selection(event):
+    selected_movie = combo.get().strip('"')
+    recommendations = get_movie_recommendations(selected_movie)
+    recommendation_listbox.delete(0, tk.END)  # Clear previous recommendations
 
     if recommendations:
-        print("Recommended movies:")
         for i, movie in enumerate(recommendations):
-            print(f"{i + 1}. {movie}")
+            recommendation_listbox.insert(tk.END, f"{i + 1}. {movie}")
     else:
-        print("No recommendations found for your input.")
+        recommendation_listbox.insert(tk.END, "No recommendations found.")
+
+
+# Create a Tkinter window
+window = tk.Tk()
+window.title("Movie Recommendation System")
+window.geometry("500x500")
+
+
+# Create a combo box (dropdown menu) for movie selection
+movie_titles = ['"' + title + '"' for title in movies_df['title']]
+combo = ttk.Combobox(
+    window, values=movie_titles, state="readonly", width=100)
+combo.set("Select a movie")
+combo.bind("<<ComboboxSelected>>", on_movie_selection)
+combo.pack(pady=10)
+combo.focus()
+
+# Create a listbox to display movie recommendations
+recommendation_listbox = tk.Listbox(window, width=300, height=20)
+recommendation_listbox.pack()
+
+# Run the Tkinter main loop
+window.mainloop()

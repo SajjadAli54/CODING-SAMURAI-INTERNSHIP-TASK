@@ -1,0 +1,3 @@
+```sh
+python main.py
+```
